@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>python</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="title">
+            <h1>Car Price Predictor</h1>
+        </div>
+        <div class="form">
+            <form method="post" action="#">
+                <div class="child">
+                    <h2>Select car company </h2>
+                    <select id="company" name="company" required="1" onchange="load_model(this.id,'car_model')">
+                        <option value="select">select</option>
+                        {% for company in companies %}
+                        <option value="{{company}}">{{company}}</option>
+                        {% endfor%}
+
+                    </select>
+                </div>
+                <div class="child">
+                    <h2>Select car model </h2>
+                    <select id="car_model" name="car_model" required="1">
+
+                    </select>
+                </div>
+                <div class="child">
+                    <h2>Select year of purchase </h2>
+                    <select id="year" name="year" required="1">
+                        {% for year in years %}
+                        <option value="{{year}}">{{year}}</option>
+                        {% endfor%}
+                    </select>
+                </div>
+                <div class="child">
+                    <h2>Select fuel type </h2>
+                    <select id="fuel" name="fuel" required="1">
+                        {% for fuel in fuel_type %}
+                        <option value="{{fuel}}">{{fuel}}</option>
+                        {% endfor%}
+                    </select>
+                </div>
+                <div class="child">
+                    <h2>Enter no. of kms driven</h2>
+                    <input type="text" id="km_driven" name="km_driven" placeholder="Enter no. of kms travelled">
+                </div>
+                <div class="btn">
+                    <button onclick="send_data()">Predict Price</button>
+
+                </div>
+            </form>
+        </div>
+        <br>
+        <div class="result">
+            <h1><span id="prediction"></span></h1>
+        </div>
+    </div>
+    <script>
+        function load_model(company_id, car_model_id) {
+            var company = document.getElementById(company_id);
+            var car_model = document.getElementById(car_model_id);
+
+            car_model.value = ""
+            car_model.innerHTML = ''
+            {% for company in companies %}
+            if (company.value == "{{ company }}") {
+                {% for model in car_models %}
+                {% if company in model %}
+                var newOption = document.createElement("option");
+                newOption.value = "{{ model }}";
+                newOption.innerHTML = "{{ model }}";
+                car_model.add(newOption);
+                {% endif %}
+                {% endfor %}
+            }
+            {% endfor %}
+        }
+
+
+        function form_handler(event) {
+            event.preventDefault();
+        }
+
+        function send_data() {
+            document.querySelector('form').addEventListener('submit', form_handler);
+
+            var fd = new FormData(document.querySelector('form'));
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/predict', true);
+            document.getElementById("prediction").innerHTML = "Wait! Predicting price...";
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    document.getElementById("prediction").innerHTML = "Predicted price: Rs " + xhr.responseText;
+                }
+            }
+            xhr.send(fd);
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>
